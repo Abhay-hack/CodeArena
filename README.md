@@ -64,18 +64,21 @@ cd CodeArena
 docker-compose up --build
 ```
 ### 3. Accessing the App
-Frontend: 
-Backend API: 
+```bash
+Frontend: http://xxxx
+Backend API: http://xxxx
+```
 
-🤝 Contributing
+## 🤝 Contributing
+
 Feel free to fork the repo, open issues, or contribute improvements! If you're interested in joining the team, contact me.
 
-👨‍💻 Author
-Abhay Gupta
-🌐 Portfolio: [Your Portfolio Link Here]
-📧 Email: guptaabhay@tutamail.com
-💼 LinkedIn: [Your LinkedIn Profile Link Here]
-🔗 GitHub: [Your GitHub Profile Link Here]
+## 👨‍💻 Author
+  Abhay Gupta
+  🌐 Portfolio: [Your Portfolio Link Here]
+  📧 Email: guptaabhay@tutamail.com
+  💼 LinkedIn: [Your LinkedIn Profile Link Here]
+  🔗 GitHub: [Your GitHub Profile Link Here]
 
-📄 License
-This project is licensed under the MIT License. Feel free to use and modify it for your own projects.
+## 📄 License
+  This project is licensed under the MIT License. Feel free to use and modify it for your own projects.
