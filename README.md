@@ -74,11 +74,11 @@ Backend API: http://xxxx
 Feel free to fork the repo, open issues, or contribute improvements! If you're interested in joining the team, contact me.
 
 ## 👨‍💻 Author
-  #### Abhay Gupta
-  #### 🌐 Portfolio: [Your Portfolio Link Here]
-  #### 📧 Email: guptaabhay@tutamail.com
-  #### 💼 LinkedIn: [Your LinkedIn Profile Link Here]
-  #### 🔗 GitHub: [Your GitHub Profile Link Here]
+Abhay Gupta
+  - 🌐 Portfolio: [Your Portfolio Link Here]
+  - 📧 Email: guptaabhay@tutamail.com
+  - 💼 LinkedIn: [Your LinkedIn Profile Link Here]
+  - 🔗 GitHub: [Your GitHub Profile Link Here]
 
 ## 📄 License
   This project is licensed under the MIT License. Feel free to use and modify it for your own projects.
