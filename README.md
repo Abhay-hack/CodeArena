@@ -75,10 +75,9 @@ Feel free to fork the repo, open issues, or contribute improvements! If you're i
 
 ## 👨‍💻 Author
 Abhay Gupta
-  - 🌐 Portfolio: [Your Portfolio Link Here]
-  - 📧 Email: guptaabhay@tutamail.com
-  - 💼 LinkedIn: [Your LinkedIn Profile Link Here]
-  - 🔗 GitHub: [Your GitHub Profile Link Here]
+  - 🌐 Portfolio: [[Portfolio](https://brief-navy.vercel.app/)]
+  - 📧 Email: guptaabhay1506@gmail.com
+  - 💼 LinkedIn: [[LinkedIn](https://www.linkedin.com/in/abhay-gupta-1257b6248/)]
 
 ## 📄 License
   This project is licensed under the MIT License. Feel free to use and modify it for your own projects.
