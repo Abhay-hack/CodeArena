@@ -1,0 +1,205 @@
+🧠 Goal: High-level System Design of CodeArena
+🗂️ Overview
+
+             ┌───────────────┐
+             │   Frontend    │ ← React.js + Tailwind
+             └──────┬────────┘
+                    │ REST / WebSocket
+             ┌──────▼────────┐
+             │   Backend     │ ← Node.js + Express.js
+             └──────┬────────┘
+                    │
+     ┌──────────────▼─────────────┐
+     │    Code Judge (Worker)     │ ← Docker-based
+     └────────┬───────────┬───────┘
+              │           │
+      ┌───────▼────┐ ┌────▼────────┐
+      │ Redis Queue│ │GitHub (Raw) │ ← Templates
+      └──────┬─────┘ └────┬────────┘
+             │            │
+       ┌─────▼─────┐  ┌───▼────────┐
+       │PostgreSQL │  │ Object Store│ ← Optional
+       └───────────┘  └─────────────┘
+
+
+1️⃣ Frontend (React.js)
+Features:
+Browse problems, contests, submissions
+
+Code editor (Monaco)
+
+Real-time leaderboard via WebSocket
+
+Fetch template from GitHub Raw
+
+Example:
+ts
+Copy
+Edit
+GET https://raw.githubusercontent.com/CodeArenaOfficial/code-templates/main/problem-1001/python.py
+
+
+2️⃣ Backend API (Express.js)
+Responsibilities:
+User Auth (JWT)
+
+CRUD for problems, submissions
+
+Serve contest logic
+
+Push submissions to judge queue
+
+Fetch template URLs dynamically
+
+Endpoints:
+bash
+Copy
+Edit
+GET    /api/problems
+GET    /api/problems/:id
+POST   /api/submit
+GET    /api/submissions/:id
+GET    /api/templates/:problemId/:language
+
+
+3️⃣ Database (PostgreSQL)
+Tables:
+users
+
+problems
+
+submissions
+
+contests
+
+contest_participants
+
+languages
+
+testcases
+
+Store only metadata here. Code templates are fetched from GitHub.
+
+
+
+4️⃣ Code Judge System
+Components:
+Worker service running in background
+
+Listens to Redis queue
+
+Executes submitted code inside Docker container
+
+Compares against test cases
+
+Sends result back to backend
+
+Tech:
+Redis + BullMQ (queue)
+
+Docker SDK
+
+Python/Golang scripts to manage input/output
+
+
+
+5️⃣ GitHub as File System (for templates)
+Strategy:
+Store templates in a public repo:
+
+https://github.com/CodeArenaOfficial/code-templates
+
+Structure:
+
+bash
+Copy
+Edit
+code-templates/
+└── problem-1001/
+    ├── python.py
+    ├── cpp.cpp
+    └── java.java
+Integration Flow:
+User selects problem + language
+
+Frontend sends request
+
+Backend constructs raw GitHub URL
+
+Frontend loads content into editor
+
+
+
+6️⃣ Redis Queue
+Purpose:
+Store pending submissions
+
+Decouple frontend request from judging
+
+Allow retry/delayed processing
+
+
+
+7️⃣ Judge Worker (Docker Sandbox)
+Secure container for running untrusted code
+
+Language-based containers: C++, Python, Java, etc.
+
+Executes code → collects stdout → compares with expected
+
+Output to Backend:
+json
+Copy
+Edit
+{
+  status: "Accepted",
+  runtime: 132,
+  memory: 25,
+  testcases_passed: 5
+}
+
+
+8️⃣ Optional: Object Storage (MinIO / S3)
+Used only if storing:
+
+Uploaded problem images
+
+Large testcases
+
+Logs / reports
+
+🔐 Security Considerations
+Component	Strategy
+Code Execution	Docker sandboxing, resource limits
+Templates	GitHub as source (read-only)
+Auth	JWT with refresh tokens
+Input Validation	Sanitize code, language, filenames
+Rate Limit	API throttle per user/IP
+Webhook Abuse	Validate GitHub webhook signatures (if used)
+
+
+
+
+
+🧪 Example Submission Flow
+User writes code in editor.
+
+Clicks "Submit".
+
+Frontend calls POST /api/submit.
+
+Backend adds to Redis queue.
+
+Judge service pulls from queue.
+
+Runs in Docker, validates output.
+
+Sends result back → updates DB → notifies user.
+
+📈 Scaling Strategy (Later)
+Layer	Scale with
+Backend	Load balancer + multiple Node.js instances
+Judge	Multiple workers across VMs
+DB	Indexes, read replicas
+Static Files	CDN (for frontend + templates if moved from GitHub)
+Templates	Optionally cache GitHub content via Redis
