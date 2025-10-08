@@ -50,28 +50,37 @@ app.get('/api/codeforces/:contestId/:index', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    );
     await page.setViewport({ width: 1366, height: 768 });
 
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 90000 });
-    await page.waitForSelector('.problem-statement', { timeout: 60000 });
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Ensure content loaded
+
+    const problemStatementExists = await page.$('.problem-statement');
+    if (!problemStatementExists) {
+      throw new Error('Problem statement not found. Page structure might have changed.');
+    }
+
+    // Extract sample input/output safely
+    let sampleInput = '';
+    let sampleOutput = '';
+    try {
+      [sampleInput, sampleOutput] = await page.evaluate(() => {
+        const inputPre = document.querySelector('.sample-test .input pre');
+        const outputPre = document.querySelector('.sample-test .output pre');
+        return [
+          inputPre ? inputPre.textContent.trim() : '',
+          outputPre ? outputPre.textContent.trim() : ''
+        ];
+      });
+    } catch (e) {
+      console.warn('Sample input/output not found:', e.message);
+    }
 
     const htmlContent = await page.content();
-
-    // Extract sample input/output via page.evaluate
-    const [sampleInput, sampleOutput] = await page.evaluate(() => {
-      const inputPre = document.querySelector('.sample-test .input pre');
-      const outputPre = document.querySelector('.sample-test .output pre');
-      return [
-        inputPre ? inputPre.textContent.trim() : '',
-        outputPre ? outputPre.textContent.trim() : ''
-      ];
-    });
-
-    await browser.close();
-
     const $ = cheerio.load(htmlContent);
+
     const title = $('.problem-statement .title').first().text().trim();
 
     let descriptionHtml = '';
@@ -96,16 +105,18 @@ app.get('/api/codeforces/:contestId/:index', async (req, res) => {
 
     res.json({ title, description: descriptionHtml, sampleInput, sampleOutput });
   } catch (err) {
-    console.error(`Error fetching Codeforces problem ${contestId}/${index}:`, err);
-    if (browser) await browser.close();
+    console.error(`Error fetching Codeforces problem ${contestId}/${index}:`, err.stack || err);
 
     let message = 'Failed to fetch problem from Codeforces.';
-    if (err.name === 'TimeoutError') {
+    if (err.message.includes('timeout')) {
       message = 'Page load or content timeout. Codeforces may be slow or blocking automated access.';
-    } else if (err.response && err.response.status === 403) {
-      message = 'Codeforces is blocking automated access (403 Forbidden).';
+    } else if (err.message.includes('Problem statement not found')) {
+      message = 'Problem statement not found. Page structure might have changed.';
     }
+
     res.status(500).json({ error: message });
+  } finally {
+    if (browser) await browser.close();
   }
 });
 
