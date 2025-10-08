@@ -28,10 +28,18 @@ const fetchCodeforcesProblem = async (contestId, index) => {
   try {
     const res = await fetch(`${API_BASE_URL}/api/codeforces/${contestId}/${index}`);
     const data = await res.json();
-    return data;
+
+    if (data.error) {
+      return { title: "Error", description: data.error, sampleInput: '', sampleOutput: '' };
+    }
+    return {
+      ...data,
+      sampleInput: data.sampleInput || '',
+      sampleOutput: data.sampleOutput || ''
+    };
   } catch (err) {
     console.error("Codeforces fetch failed:", err);
-    return { error: `Failed to fetch problem details: ${err.message}` };
+    return { title: "Error", description: `Failed to fetch problem: ${err.message}`, sampleInput: '', sampleOutput: '' };
   }
 };
 
@@ -241,66 +249,23 @@ const ProblemDetail = () => {
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
         <h2 className="text-2xl font-semibold mb-4 text-gray-200 border-b border-gray-700 pb-2">Problem Description</h2>
         <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed text-lg">
-          {problem.description ? (
-          <div className="space-y-6">
-            {/* Extract and render structured sections */}
-            {(() => {
-              const $ = document.createElement('div');
-              $.innerHTML = problem.description;
-            
-              const sections = [];
-              let currentSection = { title: 'Description', content: '' };
-            
-              for (const node of $.childNodes) {
-                const tag = node.nodeName.toLowerCase();
-              
-                if (tag === 'div' && node.className?.includes('input-specification')) {
-                  sections.push(currentSection);
-                  currentSection = { title: 'Input', content: node.innerHTML };
-                } else if (tag === 'div' && node.className?.includes('output-specification')) {
-                  sections.push(currentSection);
-                  currentSection = { title: 'Output', content: node.innerHTML };
-                } else if (tag === 'div' && node.className?.includes('note')) {
-                  sections.push(currentSection);
-                  currentSection = { title: 'Note', content: node.innerHTML };
-                } else {
-                  currentSection.content += node.outerHTML || '';
-                }
-              }
-              sections.push(currentSection);
-            
-              return sections.map((sec, idx) => (
-                <div key={idx}>
-                  <h3 className="text-xl font-bold mb-2 text-blue-400">{sec.title}</h3>
-                  <div className="prose prose-invert text-gray-300">
-                    {renderRichText(sec.content)}
-                  </div>
-                </div>
-              ));
-            })()}
-          </div>
-          ) : (
-          <p className="text-gray-400 italic">No description provided.</p>
-          )}
+          {problem.description || "No description provided. Check Codeforces link above."}
         </div>
+
       </div>
 
       {/* Sample Input/Output */}
-      <div className="mt-6 bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-        <h3 className="text-2xl font-semibold mb-4 text-gray-200 border-b border-gray-700 pb-2">Sample Tests</h3>
-        <div className="mb-4">
-          <h4 className="text-xl font-medium mb-2 text-gray-300">Sample Input</h4>
-          <pre className="bg-gray-700 p-4 rounded-md text-sm text-gray-100 border border-gray-600 overflow-auto whitespace-pre-wrap">
-            {problem.sampleInput || 'No sample input provided.'}
-          </pre>
-        </div>
-        <div>
-          <h4 className="text-xl font-medium mb-2 text-gray-300">Sample Output</h4>
-          <pre className="bg-gray-700 p-4 rounded-md text-sm text-gray-100 border border-gray-600 overflow-auto whitespace-pre-wrap">
-            {problem.sampleOutput || 'No sample output provided.'}
-          </pre>
-        </div>
+      <div className="mb-4">
+        <a
+          href={`https://codeforces.com/problemset/problem/${problem.contestId}/${problem.index}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 underline hover:text-blue-500"
+        >
+          View Full Problem on Codeforces
+        </a>
       </div>
+
 
       {/* Language Selector */}
       <div className="mt-6 mb-4 flex items-center">
