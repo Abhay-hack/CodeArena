@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+
+/* Dark theme overrides for react-calendar-heatmap */
+.react-calendar-heatmap text {
+  fill: #cbd5e1; /* Tailwind slate-300 */
+  font-size: 10px;
+}
+
+.color-empty {
+  fill: #1f2937;
+}
+.color-scale-1 {
+  fill: #4ade80; /* green-400 */
+}
+.color-scale-2 {
+  fill: #22c55e; /* green-500 */
+}
+.color-scale-3 {
+  fill: #15803d; /* green-700 */
+}
